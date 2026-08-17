@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<!--
+  ==========================================================
+  ÜRÜN SAYFASI — Penne Arrabbiata
+  ==========================================================
+  AYNI KLASÖRDE OLMASI GEREKENLER:
+    yemek.jpg    → ürün fotoğrafı (hazır)
+    yemek.glb    → Tripo'dan indirdiğin 3B model
+    yemek.usdz   → aynı modelin iOS sürümü
+
+  DEĞİŞTİRMEN GEREKENLER (hepsi işaretli):
+    · Ürün adı, açıklama, malzemeler
+    · Porsiyon ve ekstra fiyatları  → data-price değerleri
+    · Restoran adı ve WhatsApp numarası → en altta
+
+  HER ÜRÜN İÇİN bu dosyanın kopyasını al.
+  Klasörü netlify.com/drop adresine sürükleyip yayınla.
+  ==========================================================
+-->
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Penne Arrabbiata — Nefis Mutfak</title>
+<meta name="theme-color" content="#191C20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<style>
+  :root{
+    --slate:#191c20;
+    --raised:#22262b;
+    --line:#333940;
+    --amber:#f08a3c;
+    --ember:#d94f2b;
+    --cream:#ece6dd;
+    --muted:#a9b1b9;
+    --radius:16px;
+    --sans:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+    --serif:'Fraunces',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--slate);
+    color:var(--cream);
+    font-family:var(--sans);
+    font-size:16.5px;
+    line-height:1.55;
+    letter-spacing:-.006em;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:118px;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:0 20px}
+  .eyebrow{
+    font-size:12px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;
+  }
+
+  /* ---------- GÖRSEL ALANI ---------- */
+  .visual{position:relative;background:#0f1114}
+  .pane{display:none}
+  .pane.is-active{display:block}
+  .pane img{width:100%;display:block;aspect-ratio:4/5;object-fit:cover}
+  model-viewer{
+    width:100%;height:min(70vw,420px);
+    background:radial-gradient(circle at 50% 60%,#2b3037,#0f1114 70%);
+    --poster-color:transparent;
+  }
+  .visual::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:96px;
+    background:linear-gradient(to bottom,transparent,var(--slate));
+    pointer-events:none;
+  }
+
+  /* fotoğraf / 3B geçişi */
+  .toggle{
+    position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    z-index:2;display:flex;gap:2px;padding:3px;
+    background:rgba(15,17,20,.72);backdrop-filter:blur(12px);
+    border:1px solid rgba(236,230,221,.14);border-radius:999px;
+  }
+  .toggle button{
+    border:none;background:transparent;color:var(--cream);
+    font-family:inherit;font-size:13.5px;font-weight:600;
+    padding:8px 18px;border-radius:999px;cursor:pointer;
+    transition:background .18s ease,color .18s ease;
+  }
+  .toggle button[aria-selected="true"]{background:var(--cream);color:#14171a;font-weight:700}
+  .toggle button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+  .ar-btn{
+    position:absolute;right:14px;bottom:22px;z-index:2;
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 16px;border:none;border-radius:999px;
+    background:var(--amber);color:#20120a;
+    font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 20px rgba(0,0,0,.45);
+  }
+  .ar-btn svg{width:16px;height:16px}
+  .ar-btn:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+  body[data-ar="off"] .ar-btn{display:none}
+
+  /* ---------- BAŞLIK ---------- */
+  header{padding:6px 0 20px}
+  h1{
+    font-family:var(--serif);
+    font-weight:600;font-size:clamp(34px,9.4vw,46px);
+    font-variation-settings:'opsz' 100;
+    line-height:1.04;letter-spacing:-.02em;margin:9px 0 12px;
+  }
+  h1 em{font-style:normal;color:var(--amber)}
+  .lede{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:40ch}
+
+  /* künye şeridi */
+  .facts{
+    display:flex;flex-wrap:wrap;gap:0;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    margin:22px 0 26px;
+  }
+  .fact{flex:1 1 33%;padding:14px 4px;text-align:center;border-right:1px solid var(--line)}
+  .fact:last-child{border-right:none}
+  .fact dt{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fact dd{font-size:19px;font-weight:700;letter-spacing:-.02em;margin-top:5px}
+
+  /* acılık — sayfanın imzası */
+  .heat{display:flex;gap:5px;justify-content:center;margin-top:7px}
+  .heat span{width:7px;height:16px;border-radius:3px;background:var(--line)}
+  .heat span.on{background:linear-gradient(to top,var(--ember),var(--amber))}
+
+  /* ---------- SEÇİMLER ---------- */
+  section{margin-bottom:28px}
+  h2{
+    font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin-bottom:13px;
+  }
+  .opt{
+    display:flex;align-items:center;gap:13px;
+    padding:15px 16px;margin-bottom:9px;
+    background:var(--raised);border:1px solid var(--line);
+    border-radius:var(--radius);cursor:pointer;
+    transition:border-color .16s ease,background .16s ease;
+  }
+  .opt:has(input:checked){border-color:var(--amber);background:#2a2620}
+  .opt:has(input:focus-visible){outline:2px solid var(--amber);outline-offset:2px}
+  .opt input{accent-color:var(--amber);width:19px;height:19px;flex:none;cursor:pointer}
+  .opt .name{flex:1;font-weight:600;font-size:15.5px}
+  .opt .sub{display:block;font-weight:400;font-size:13.5px;color:var(--muted);margin-top:2px}
+  .opt .amt{font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--cream);white-space:nowrap}
+
+  /* adet */
+  .qty{display:flex;align-items:center;gap:6px}
+  .qty button{
+    width:42px;height:42px;border-radius:12px;cursor:pointer;
+    background:var(--raised);border:1px solid var(--line);
+    color:var(--cream);font-size:20px;font-family:inherit;line-height:1;
+  }
+  .qty button:hover{border-color:var(--amber)}
+  .qty button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .qty output{
+    font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;
+    min-width:48px;text-align:center;
+  }
+
+  textarea{
+    width:100%;min-height:76px;resize:vertical;
+    background:var(--raised);border:1px solid var(--line);
+    border-radius:var(--radius);padding:13px 15px;
+    color:var(--cream);font-family:inherit;font-size:15.5px;line-height:1.5;
+  }
+  textarea::placeholder{color:var(--muted)}
+  textarea:focus{outline:none;border-color:var(--amber)}
+
+  .info{font-size:14.5px;color:var(--muted);line-height:1.7}
+  .info strong{color:var(--cream);font-weight:500}
+
+  /* ---------- SİPARİŞ ÇUBUĞU ---------- */
+  .bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(25,28,32,.94);backdrop-filter:blur(16px);
+    border-top:1px solid var(--line);
+    padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+  }
+  .bar-in{max-width:520px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .total{flex:none}
+  .total .eyebrow{display:block;margin-bottom:1px}
+  .total b{font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:block;line-height:1.15}
+  .order{
+    flex:1;padding:16px;border:none;border-radius:14px;cursor:pointer;
+    background:var(--amber);color:#20120a;
+    font-family:inherit;font-size:16px;font-weight:700;
+    transition:filter .15s ease,transform .12s ease;
+  }
+  .order:hover{filter:brightness(1.07)}
+  .order:active{transform:scale(.985)}
+  .order:focus-visible{outline:2px solid var(--cream);outline-offset:3px}
+
+  footer{
+    text-align:center;color:var(--muted);
+    font-size:12px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+    padding:26px 0 10px;border-top:1px solid var(--line);
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= GÖRSEL ================= -->
+<div class="visual">
+  <div class="toggle" role="tablist" aria-label="Görünüm">
+    <button role="tab" aria-selected="true"  data-pane="photo">Fotoğraf</button>
+    <button role="tab" aria-selected="false" data-pane="model">3B</button>
+  </div>
+
+  <div class="pane is-active" id="photo">
+    <img src="yemek.jpg" alt="Siyah tabakta acılı sosla penne arrabbiata">
+  </div>
+
+  <div class="pane" id="model">
+    <model-viewer
+      src="yemek.glb"
+      ios-src="yemek.usdz"
+      alt="Penne Arrabbiata tabağının 3B modeli"
+      ar ar-modes="webxr scene-viewer quick-look"
+      ar-scale="fixed" ar-placement="floor"
+      camera-controls touch-action="pan-y"
+      auto-rotate auto-rotate-delay="900" rotation-per-second="16deg"
+      shadow-intensity="1.1" shadow-softness="0.9"
+      exposure="1.05" environment-image="neutral" loading="lazy">
+      <button class="ar-btn" slot="ar-button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2.8 20 7v10l-8 4.2L4 17V7z"/><path d="M4 7l8 4.2L20 7M12 11.2V21"/>
+        </svg>
+        Masanda gör
+      </button>
+    </model-viewer>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ================= BAŞLIK ================= -->
+  <header>
+    <p class="eyebrow">Makarnalar</p>
+    <h1>Penne <em>Arrabbiata</em></h1>
+    <p class="lede">
+      Sarımsakta çevrilmiş domates sosu, pul biber ve tereyağı.
+      Üzerine rendelenmiş parmesan, taze fesleğen.
+    </p>
+
+    <dl class="facts">
+      <div class="fact"><dt>Porsiyon</dt><dd>320 g</dd></div>
+      <div class="fact"><dt>Hazırlık</dt><dd>14 dk</dd></div>
+      <div class="fact">
+        <dt>Acılık</dt>
+        <dd class="heat" aria-label="Acılık: 3 üzerinden 2">
+          <span class="on"></span><span class="on"></span><span></span>
+        </dd>
+      </div>
+    </dl>
+  </header>
+
+  <!-- ================= PORSİYON ================= -->
+  <section>
+    <h2>Porsiyon</h2>
+    <label class="opt">
+      <input type="radio" name="porsiyon" data-price="240" checked>
+      <span class="name">Tek kişilik<span class="sub">320 g</span></span>
+      <span class="amt">₺240</span>
+    </label>
+    <label class="opt">
+      <input type="radio" name="porsiyon" data-price="390">
+      <span class="name">İki kişilik<span class="sub">560 g · paylaşımlık tabak</span></span>
+      <span class="amt">₺390</span>
+    </label>
+  </section>
+
+  <!-- ================= EKSTRALAR ================= -->
+  <section>
+    <h2>Ekstralar</h2>
+    <label class="opt">
+      <input type="checkbox" data-price="90">
+      <span class="name">Izgara tavuk<span class="sub">120 g, dilimlenmiş</span></span>
+      <span class="amt">+₺90</span>
+    </label>
+    <label class="opt">
+      <input type="checkbox" data-price="35">
+      <span class="name">Ekstra parmesan</span>
+      <span class="amt">+₺35</span>
+    </label>
+    <label class="opt">
+      <input type="checkbox" data-price="0">
+      <span class="name">Bol acı<span class="sub">pul biber artırılır</span></span>
+      <span class="amt">Ücretsiz</span>
+    </label>
+  </section>
+
+  <!-- ================= ADET ================= -->
+  <section>
+    <h2>Adet</h2>
+    <div class="qty">
+      <button type="button" id="minus" aria-label="Azalt">−</button>
+      <output id="count" aria-live="polite">1</output>
+      <button type="button" id="plus" aria-label="Artır">+</button>
+    </div>
+  </section>
+
+  <!-- ================= NOT ================= -->
+  <section>
+    <h2>Mutfağa not</h2>
+    <textarea id="note" placeholder="Örn. acısız olsun, parmesan ayrı gelsin"></textarea>
+  </section>
+
+  <!-- ================= İÇİNDEKİLER ================= -->
+  <section>
+    <h2>İçindekiler</h2>
+    <p class="info">
+      Durum buğdayı penne, domates, sarımsak, zeytinyağı, tereyağı, pul biber,
+      parmesan, fesleğen, tuz, karabiber.<br>
+      <strong>Alerjen:</strong> gluten, süt ürünleri.
+    </p>
+  </section>
+
+  <footer>Nefis Mutfak · Kayseri</footer>
+</div>
+
+<!-- ================= SİPARİŞ ÇUBUĞU ================= -->
+<div class="bar">
+  <div class="bar-in">
+    <div class="total">
+      <span class="eyebrow">Toplam</span>
+      <b id="total">₺240</b>
+    </div>
+    <button class="order" id="order">Sipariş ver</button>
+  </div>
+</div>
+
+<script>
+/* --- fotoğraf / 3B geçişi --- */
+const tabs = document.querySelectorAll('.toggle button');
+tabs.forEach(tab => tab.addEventListener('click', () => {
+  tabs.forEach(t => t.setAttribute('aria-selected', String(t === tab)));
+  document.querySelectorAll('.pane').forEach(p =>
+    p.classList.toggle('is-active', p.id === tab.dataset.pane));
+}));
+
+/* --- AR desteği yoksa butonu gizle --- */
+const viewer = document.querySelector('model-viewer');
+const syncAr = () => document.body.dataset.ar = viewer.canActivateAR ? 'on' : 'off';
+viewer.addEventListener('load', syncAr);
+viewer.addEventListener('ar-status', syncAr);
+setTimeout(syncAr, 2500);
+
+/* --- fiyat --- */
+let qty = 1;
+const money = n => '₺' + n.toLocaleString('tr-TR');
+
+function calc(){
+  const base = +document.querySelector('input[name="porsiyon"]:checked').dataset.price;
+  const add = [...document.querySelectorAll('input[type="checkbox"]:checked')]
+              .reduce((s, el) => s + (+el.dataset.price), 0);
+  document.getElementById('total').textContent = money((base + add) * qty);
+}
+
+document.querySelectorAll('input').forEach(i => i.addEventListener('change', calc));
+
+document.getElementById('plus').addEventListener('click', () => {
+  if (qty < 20) qty++;
+  document.getElementById('count').textContent = qty;
+  calc();
+});
+document.getElementById('minus').addEventListener('click', () => {
+  if (qty > 1) qty--;
+  document.getElementById('count').textContent = qty;
+  calc();
+});
+calc();
+
+/* --- sipariş → WhatsApp --- */
+/* ↓ RESTORANIN NUMARASINI YAZ: ülke kodu + numara, boşluksuz */
+const PHONE = '905551112233';
+
+document.getElementById('order').addEventListener('click', () => {
+  const porsiyon = document.querySelector('input[name="porsiyon"]:checked')
+                   .closest('.opt').querySelector('.name').childNodes[0].textContent.trim();
+  const ekstra = [...document.querySelectorAll('input[type="checkbox"]:checked')]
+                 .map(el => el.closest('.opt').querySelector('.name').childNodes[0].textContent.trim());
+  const note = document.getElementById('note').value.trim();
+
+  const lines = [
+    'Merhaba, sipariş vermek istiyorum:',
+    '',
+    `Penne Arrabbiata — ${porsiyon}`,
+    `Adet: ${qty}`,
+    ekstra.length ? `Ekstra: ${ekstra.join(', ')}` : null,
+    note ? `Not: ${note}` : null,
+    '',
+    `Toplam: ${document.getElementById('total').textContent}`
+  ].filter(Boolean);
+
+  window.open('https://wa.me/' + PHONE + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+});
+</script>
+
+</body>
+</html>
